@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garment Dye Lab | System Overview</title>
+    <style>
+        :root {
+            --paper: #f6f1e8;
+            --ink: #111111;
+            --muted: #676158;
+            --line: #d5cab9;
+            --outline: #9f9588;
+            --veil: rgba(255, 253, 248, 0.72);
+            --white: #fffdf8;
+            --sage: #365f4b;
+            --clay: #9b5a43;
+            --indigo: #1d3f5f;
+            --soft: #ece3d5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        a {
+            font: inherit;
+        }
+
+        .hero {
+            position: relative;
+            min-height: 88vh;
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+            border-bottom: 1px solid var(--line);
+            background: #efe8dc;
+        }
+
+        #hero-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(246, 241, 232, 0.24) 0%, rgba(246, 241, 232, 0.84) 78%, var(--paper) 100%),
+                linear-gradient(90deg, rgba(246, 241, 232, 0.92) 0%, rgba(246, 241, 232, 0.58) 45%, rgba(246, 241, 232, 0.24) 100%);
+            pointer-events: none;
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 56px 0 64px;
+        }
+
+        .kicker {
+            margin: 0 0 14px;
+            color: var(--sage);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 920px;
+            margin: 0;
+            font-size: clamp(48px, 9vw, 116px);
+            line-height: 0.9;
+            font-weight: 850;
+            letter-spacing: 0;
+        }
+
+        .hero-copy {
+            display: grid;
+            grid-template-columns: minmax(0, 620px) auto;
+            gap: 36px;
+            align-items: end;
+            margin-top: 28px;
+        }
+
+        .hero-copy p {
+            margin: 0;
+            color: #38332d;
+            font-size: clamp(17px, 2vw, 22px);
+            max-width: 640px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 42px;
+            padding: 0 16px;
+            border: 1px solid rgba(17, 17, 17, 0.18);
+            background: var(--ink);
+            color: var(--paper);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .btn.secondary {
+            background: rgba(255, 253, 248, 0.42);
+            color: var(--ink);
+        }
+
+        .page {
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .section-head {
+            display: grid;
+            grid-template-columns: 0.75fr 1.25fr;
+            gap: 36px;
+            align-items: start;
+            padding: 58px 0 28px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: clamp(30px, 4vw, 52px);
+            line-height: 1;
+            letter-spacing: 0;
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 16px;
+            max-width: 660px;
+        }
+
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            gap: 18px;
+            border-bottom: 0;
+        }
+
+        .phase {
+            min-height: 560px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 22px;
+            padding: 26px;
+            border: 1px solid rgba(159, 149, 136, 0.48);
+            background: var(--veil);
+            box-shadow: 0 18px 38px rgba(64, 51, 37, 0.08);
+        }
+
+        .phase-id {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .phase-id span:last-child {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(103, 97, 88, 0.35);
+            border-radius: 50%;
+        }
+
+        .phase h3 {
+            margin: 18px 0 10px;
+            font-size: 28px;
+            line-height: 1.1;
+            letter-spacing: 0;
+        }
+
+        .phase p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .screen {
+            position: relative;
+            align-self: stretch;
+            min-height: 300px;
+            display: grid;
+            grid-template-rows: 32px minmax(268px, 1fr);
+            border: 1px solid rgba(159, 149, 136, 0.62);
+            background: var(--white);
+            overflow: hidden;
+            box-shadow: inset 0 0 0 1px rgba(255, 253, 248, 0.65);
+        }
+
+        .screen-bar {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 10px;
+            border-bottom: 1px solid var(--line);
+            background: var(--soft);
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border: 1px solid rgba(103, 97, 88, 0.42);
+            border-radius: 50%;
+        }
+
+        .screen canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+        }
+
+        .mock-preview {
+            min-height: 218px;
+            height: calc(100% - 32px);
+            display: grid;
+            padding: 18px;
+            background: var(--white);
+        }
+
+        .generator-mock {
+            grid-template-columns: 0.78fr 1.22fr;
+            gap: 16px;
+        }
+
+        .mock-controls {
+            display: grid;
+            gap: 10px;
+            align-content: start;
+            padding: 12px;
+            background: var(--soft);
+            border: 1px solid var(--line);
+        }
+
+        .control-line {
+            height: 10px;
+            border: 1px solid var(--line);
+            background: var(--white);
+        }
+
+        .control-line.fill-a {
+            background: linear-gradient(90deg, var(--sage) 0 62%, var(--white) 62%);
+        }
+
+        .control-line.fill-b {
+            background: linear-gradient(90deg, var(--clay) 0 44%, var(--white) 44%);
+        }
+
+        .mock-dress-wrap {
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--line);
+            background:
+                linear-gradient(90deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+                linear-gradient(180deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .mock-dress {
+            position: relative;
+            width: min(42%, 118px);
+            aspect-ratio: 0.62;
+            background:
+                radial-gradient(circle at 30% 18%, rgba(255, 253, 248, 0.86) 0 5%, transparent 18%),
+                radial-gradient(circle at 78% 42%, rgba(54, 95, 75, 0.2) 0 4%, transparent 20%),
+                linear-gradient(180deg, rgba(155, 90, 67, 0) 54%, rgba(155, 90, 67, 0.38) 100%),
+                repeating-linear-gradient(76deg, rgba(29, 63, 95, 0.52) 0 4px, transparent 4px 15px),
+                repeating-linear-gradient(103deg, rgba(17, 17, 17, 0.05) 0 1px, transparent 1px 7px),
+                var(--soft);
+            clip-path: polygon(37% 0, 63% 0, 75% 32%, 92% 100%, 8% 100%, 25% 32%);
+            border: 1px solid var(--outline);
+            box-shadow: 0 0 0 1px rgba(159, 149, 136, 0.35);
+        }
+
+        .mock-dress::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(255, 253, 248, 0.32), transparent 35%, rgba(29, 63, 95, 0.13) 70%, transparent),
+                radial-gradient(ellipse at 50% 100%, rgba(155, 90, 67, 0.3), transparent 46%);
+            mix-blend-mode: multiply;
+        }
+
+        .logic-mock {
+            align-content: center;
+        }
+
+        .logic-grid {
+            display: grid;
+            grid-template-columns: 1fr 42px 1fr 42px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .logic-node {
+            min-height: 72px;
+            display: grid;
+            place-items: center;
+            padding: 10px;
+            border: 1px solid var(--outline);
+            background: var(--paper);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .logic-node.main {
+            background: #dce8df;
+        }
+
+        .logic-arrow {
+            height: 1px;
+            background: var(--ink);
+            position: relative;
+        }
+
+        .logic-arrow::after {
+            content: "";
+            position: absolute;
+            right: -1px;
+            top: -4px;
+            width: 8px;
+            height: 8px;
+            border-top: 1px solid var(--outline);
+            border-right: 1px solid var(--outline);
+            transform: rotate(45deg);
+        }
+
+        .logic-strip {
+            height: 52px;
+            margin-top: 24px;
+            border: 1px solid var(--line);
+            background:
+                radial-gradient(circle at 12% 45%, rgba(255, 253, 248, 0.9) 0 4%, transparent 16%),
+                radial-gradient(circle at 76% 58%, rgba(54, 95, 75, 0.2) 0 6%, transparent 20%),
+                linear-gradient(180deg, rgba(155, 90, 67, 0) 48%, rgba(155, 90, 67, 0.3) 100%),
+                repeating-linear-gradient(82deg, rgba(29, 63, 95, 0.42) 0 4px, transparent 4px 16px),
+                repeating-linear-gradient(0deg, rgba(17, 17, 17, 0.05) 0 1px, transparent 1px 6px),
+                var(--soft);
+        }
+
+        .evaluation-mock {
+            grid-template-rows: 1fr auto;
+            gap: 14px;
+        }
+
+        .variation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .variation-swatch {
+            position: relative;
+            overflow: hidden;
+            min-height: 58px;
+            border: 1px solid var(--line);
+            background:
+                radial-gradient(circle at 34% 38%, rgba(255, 253, 248, 0.72) 0 5%, transparent 18%),
+                repeating-linear-gradient(76deg, rgba(29, 63, 95, 0.24) 0 4px, transparent 4px 18px),
+                var(--soft);
+        }
+
+        .variation-swatch:nth-child(2) {
+            background:
+                radial-gradient(circle at 72% 32%, rgba(255, 253, 248, 0.58) 0 5%, transparent 18%),
+                repeating-linear-gradient(80deg, rgba(29, 63, 95, 0.5) 0 6px, transparent 6px 13px),
+                repeating-linear-gradient(0deg, rgba(17, 17, 17, 0.05) 0 1px, transparent 1px 7px),
+                var(--soft);
+        }
+
+        .variation-swatch:nth-child(3) {
+            background:
+                radial-gradient(circle at 22% 46%, rgba(255, 253, 248, 0.74) 0 7%, transparent 20%),
+                linear-gradient(180deg, transparent 46%, rgba(155, 90, 67, 0.38) 100%),
+                repeating-linear-gradient(77deg, rgba(29, 63, 95, 0.38) 0 5px, transparent 5px 18px),
+                var(--soft);
+        }
+
+        .variation-swatch.selected {
+            border: 2px solid var(--ink);
+            background:
+                radial-gradient(circle at 28% 24%, rgba(255, 253, 248, 0.82) 0 6%, transparent 19%),
+                radial-gradient(circle at 76% 52%, rgba(54, 95, 75, 0.22) 0 4%, transparent 19%),
+                linear-gradient(180deg, transparent 58%, rgba(155, 90, 67, 0.34) 100%),
+                repeating-linear-gradient(78deg, rgba(29, 63, 95, 0.48) 0 4px, transparent 4px 15px),
+                repeating-linear-gradient(0deg, rgba(17, 17, 17, 0.06) 0 1px, transparent 1px 6px),
+                var(--soft);
+        }
+
+        .variation-swatch::after {
+            content: "";
+            position: absolute;
+            inset: -20%;
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(155, 90, 67, 0.16), transparent 32%),
+                radial-gradient(ellipse at 85% 12%, rgba(29, 63, 95, 0.12), transparent 28%);
+            transform: rotate(-8deg);
+            pointer-events: none;
+        }
+
+        .matrix-mock {
+            display: grid;
+            gap: 7px;
+            padding: 10px;
+            border: 1px solid var(--outline);
+            background: var(--paper);
+        }
+
+        .matrix-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .matrix-cell {
+            height: 7px;
+            background: var(--line);
+        }
+
+        .matrix-cell.hit {
+            background: var(--sage);
+        }
+
+        .phase-links {
+            display: grid;
+            gap: 10px;
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+        }
+
+        .phase-links a {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            min-height: 38px;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .phase-links a::after {
+            content: "OPEN";
+            color: var(--sage);
+            font-size: 11px;
+        }
+
+        .data-flow {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+            padding: 30px 0 48px;
+        }
+
+        .flow-node {
+            min-height: 168px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 22px;
+            border-top: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(255, 253, 248, 0.58), rgba(255, 253, 248, 0.22));
+        }
+
+        .flow-node b {
+            color: var(--sage);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .flow-node strong {
+            display: block;
+            margin-top: 12px;
+            font-size: 22px;
+            line-height: 1.14;
+        }
+
+        .flow-node span {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 0;
+            margin-bottom: 64px;
+            border: 1px solid rgba(159, 149, 136, 0.58);
+            background: rgba(255, 253, 248, 0.7);
+            box-shadow: 0 22px 48px rgba(64, 51, 37, 0.1);
+        }
+
+        .board-visual {
+            min-height: 520px;
+            border-right: 1px solid var(--line);
+            background: var(--white);
+        }
+
+        .board-visual canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .portfolio-visual {
+            min-height: 424px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 22px;
+            height: 100%;
+        }
+
+        .large-texture {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--outline);
+            background:
+                radial-gradient(circle at 28% 18%, rgba(255, 253, 248, 0.9) 0 5%, transparent 18%),
+                radial-gradient(circle at 72% 42%, rgba(54, 95, 75, 0.18) 0 5%, transparent 20%),
+                linear-gradient(180deg, transparent 57%, rgba(155, 90, 67, 0.36) 100%),
+                repeating-linear-gradient(77deg, rgba(29, 63, 95, 0.5) 0 5px, transparent 5px 17px),
+                repeating-linear-gradient(102deg, rgba(17, 17, 17, 0.05) 0 1px, transparent 1px 8px),
+                var(--soft);
+        }
+
+        .large-texture::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(255, 253, 248, 0.32), transparent 28%, rgba(29, 63, 95, 0.12) 58%, transparent),
+                radial-gradient(ellipse at 50% 100%, rgba(155, 90, 67, 0.26), transparent 48%);
+            mix-blend-mode: multiply;
+        }
+
+        .large-texture::after {
+            content: "";
+            position: absolute;
+            inset: 18px;
+            border: 1px solid rgba(17, 17, 17, 0.2);
+            pointer-events: none;
+        }
+
+        .score-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 20px;
+            border: 1px solid var(--line);
+            background: var(--paper);
+        }
+
+        .score-panel h3 {
+            margin: 0;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .score-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .score-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .score-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid var(--outline);
+            background: var(--sage);
+        }
+
+        .score-total {
+            padding-top: 18px;
+            border-top: 1px solid var(--line);
+            color: var(--ink);
+            font-size: 32px;
+            font-weight: 850;
+        }
+
+        .board-copy {
+            padding: 34px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .board-copy h2 {
+            margin: 0;
+            font-size: clamp(32px, 4vw, 58px);
+            line-height: 0.98;
+            letter-spacing: 0;
+        }
+
+        .board-copy p {
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            border-bottom: 1px solid var(--line);
+            padding: 7px 9px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 960px) {
+            .hero-copy,
+            .section-head,
+            .data-flow,
+            .board {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-actions {
+                justify-content: flex-start;
+            }
+
+            .pipeline {
+                grid-template-columns: 1fr;
+            }
+
+            .phase {
+                min-height: auto;
+            }
+
+            .board-visual {
+                min-height: 360px;
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+            }
+
+            .portfolio-visual {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .hero-inner,
+            .page {
+                width: min(100% - 32px, 1180px);
+            }
+
+            .hero-inner {
+                padding-bottom: 42px;
+            }
+
+            h1 {
+                font-size: 50px;
+            }
+
+            .phase {
+                padding: 20px;
+            }
+
+            .board-copy {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero" aria-label="Garment Dye Lab overview">
+        <canvas id="hero-canvas"></canvas>
+        <div class="hero-inner">
+            <p class="kicker">From Dye Experiment to Design Decision</p>
+            <h1>Garment Dye Lab</h1>
+            <div class="hero-copy">
+                <p>
+                    A procedural garment dyeing system connecting textile generation, algorithmic explanation, and design evaluation.
+                </p>
+                <nav class="hero-actions" aria-label="Overview actions">
+                    <a class="btn" href="#system-flow">View System Flow</a>
+                </nav>
+            </div>
+        </div>
+    </section>
+
+    <main class="page">
+        <section class="section-head" id="system-flow">
+            <h2>Three-Part System Narrative</h2>
+            <p>
+                The three pages are organized as one continuous design workflow: generate dye possibilities, explain the computational logic, then turn visual outputs into design decisions through evaluation.
+            </p>
+        </section>
+
+        <section class="pipeline" aria-label="Three connected projects">
+            <article class="phase">
+                <div>
+                    <div class="phase-id"><span>Experiment Layer</span><span>01</span></div>
+                    <h3>Generate</h3>
+                    <p>Fabric, color, technique, scale, and overlay controls feed the dye generator and produce exportable UV textures.</p>
+                </div>
+                <div class="screen" aria-label="Generator visual">
+                    <div class="screen-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <canvas id="generator-canvas"></canvas>
+                </div>
+                <div class="phase-links">
+                    <a href="Garment_Dyeing_Lab_V5.html" target="_blank" rel="noopener">Lab Generator</a>
+                </div>
+            </article>
+
+            <article class="phase">
+                <div>
+                    <div class="phase-id"><span>Logic Layer</span><span>02</span></div>
+                    <h3>Explain</h3>
+                    <p>Parameter input, algorithm routing, layer composition, and export paths are translated into a readable portfolio logic.</p>
+                </div>
+                <div class="screen" aria-label="Logic visual">
+                    <div class="screen-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <canvas id="logic-canvas"></canvas>
+                </div>
+                <div class="phase-links">
+                    <a href="Garment_Dyeing_Lab_Portfolio_Explanation.html" target="_blank" rel="noopener">Visual Logic</a>
+                </div>
+            </article>
+
+            <article class="phase">
+                <div>
+                    <div class="phase-id"><span>Decision Layer</span><span>03</span></div>
+                    <h3>Evaluate</h3>
+                    <p>Final outputs are judged through structure, inside-outside behavior, dye control, wearability, and collection consistency.</p>
+                </div>
+                <div class="screen" aria-label="Evaluation visual">
+                    <div class="screen-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+                    <canvas id="evaluation-canvas"></canvas>
+                </div>
+                <div class="phase-links">
+                    <a href="Garment_Dyeing_Lab_Dye_Output_Evaluation_System.html" target="_blank" rel="noopener">Output Evaluation</a>
+                </div>
+            </article>
+        </section>
+
+        <section class="section-head">
+            <h2>System Data Flow</h2>
+            <p>
+                In the portfolio, the project reads as a pipeline from design input to evaluated output, rather than as three separate tools.
+            </p>
+        </section>
+
+        <section class="data-flow" aria-label="System data flow">
+            <div class="flow-node">
+                <div>
+                    <b>Input</b>
+                    <strong>Fabric + Dye Parameters</strong>
+                </div>
+                <span>Fabric type, dye technique, color palette, scale, and overlay relationship.</span>
+            </div>
+            <div class="flow-node">
+                <div>
+                    <b>Engine</b>
+                    <strong>Procedural Canvas Texture</strong>
+                </div>
+                <span>Base canvas, overlay canvas, blend mode, and seamless texture processing.</span>
+            </div>
+            <div class="flow-node">
+                <div>
+                    <b>Decision</b>
+                    <strong>Selected Dye Output</strong>
+                </div>
+                <span>Output variations, scoring matrix, and garment placement logic.</span>
+            </div>
+        </section>
+
+        <section class="board" aria-label="Portfolio board">
+            <div class="board-visual">
+                <canvas id="board-canvas"></canvas>
+            </div>
+            <div class="board-copy">
+                <div>
+                    <p class="kicker">Portfolio Framing</p>
+                    <h2>From Dye Experiment to Design Decision</h2>
+                    <p>
+                        This overview works as the portfolio chapter opener: it frames the full system before leading into the generator, visual logic, and evaluation pages.
+                    </p>
+                </div>
+                <div class="tags" aria-label="System tags">
+                    <span class="tag">Parametric Dye</span>
+                    <span class="tag">Layer Composition</span>
+                    <span class="tag">Canvas Texture</span>
+                    <span class="tag">Output Matrix</span>
+                    <span class="tag">Garment Placement</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const colors = {
+            paper: "#f6f1e8",
+            ink: "#111111",
+            muted: "#676158",
+            line: "#d5cab9",
+            outline: "#9f9588",
+            sage: "#365f4b",
+            clay: "#9b5a43",
+            indigo: "#1d3f5f",
+            soft: "#ece3d5",
+            white: "#fffdf8"
+        };
+
+        function noise(x, y) {
+            const n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
+            return n - Math.floor(n);
+        }
+
+        function setupCanvas(canvas) {
+            const rect = canvas.getBoundingClientRect();
+            const w = Math.max(1, rect.width || canvas.parentElement?.clientWidth || 1);
+            const h = Math.max(1, rect.height || canvas.parentElement?.clientHeight || 1);
+            const dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+            canvas.width = Math.round(w * dpr);
+            canvas.height = Math.round(h * dpr);
+            const ctx = canvas.getContext("2d");
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.textBaseline = "middle";
+            return { ctx, w, h };
+        }
+
+        function drawSmallLabel(ctx, text, x, y, align = "left") {
+            ctx.save();
+            ctx.font = "700 10px Arial";
+            ctx.textAlign = align;
+            ctx.fillStyle = colors.muted;
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            const radius = Math.min(r, w / 2, h / 2);
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + w - radius, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+            ctx.lineTo(x + w, y + h - radius);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            ctx.lineTo(x + radius, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        function drawDressPath(ctx, cx, cy, dressW, dressH) {
+            ctx.beginPath();
+            ctx.moveTo(cx - dressW * 0.18, cy - dressH * 0.45);
+            ctx.lineTo(cx + dressW * 0.18, cy - dressH * 0.45);
+            ctx.bezierCurveTo(cx + dressW * 0.32, cy - dressH * 0.16, cx + dressW * 0.44, cy + dressH * 0.18, cx + dressW * 0.52, cy + dressH * 0.46);
+            ctx.lineTo(cx - dressW * 0.52, cy + dressH * 0.46);
+            ctx.bezierCurveTo(cx - dressW * 0.44, cy + dressH * 0.18, cx - dressW * 0.32, cy - dressH * 0.16, cx - dressW * 0.18, cy - dressH * 0.45);
+            ctx.closePath();
+        }
+
+        function drawTexture(ctx, x, y, w, h, density = 1, alpha = 1) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+            ctx.fillStyle = colors.soft;
+            ctx.fillRect(x, y, w, h);
+
+            const bandCount = Math.max(8, Math.round(34 * density));
+            for (let i = -4; i < bandCount; i++) {
+                const px = x + (i / bandCount) * w + Math.sin(i * 0.6) * 8;
+                const grad = ctx.createLinearGradient(px - 10, y, px + 10, y);
+                grad.addColorStop(0, "rgba(29,63,95,0)");
+                grad.addColorStop(0.5, `rgba(29,63,95,${0.34 * alpha})`);
+                grad.addColorStop(1, "rgba(29,63,95,0)");
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = Math.max(3, Math.min(7, w * 0.018));
+                ctx.beginPath();
+                for (let step = 0; step <= 132; step++) {
+                    const t = step / 132;
+                    const wave = Math.sin(t * Math.PI * 2.2 + i * 0.2) * h * 0.025;
+                    const micro = (noise(i, step * 0.12) - 0.5) * h * 0.012;
+                    const yy = y + t * h;
+                    const xx = px + wave + micro + t * w * 0.09;
+                    if (step === 0) ctx.moveTo(xx, yy);
+                    else ctx.lineTo(xx, yy);
+                }
+                ctx.stroke();
+            }
+
+            const hem = ctx.createLinearGradient(x, y + h * 0.62, x, y + h);
+            hem.addColorStop(0, "rgba(155,90,67,0)");
+            hem.addColorStop(1, `rgba(155,90,67,${0.28 * alpha})`);
+            ctx.fillStyle = hem;
+            ctx.fillRect(x, y + h * 0.62, w, h * 0.38);
+
+            ctx.strokeStyle = "rgba(17,17,17,0.14)";
+            ctx.lineWidth = 1;
+            for (let yy = y + 8; yy < y + h; yy += 9) {
+                ctx.beginPath();
+                ctx.moveTo(x, yy + (noise(yy, 3) - 0.5) * 2);
+                ctx.lineTo(x + w, yy + (noise(yy, 9) - 0.5) * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawHero() {
+            const canvas = document.getElementById("hero-canvas");
+            const { ctx, w, h } = setupCanvas(canvas);
+            ctx.fillStyle = colors.paper;
+            ctx.fillRect(0, 0, w, h);
+            drawTexture(ctx, w * 0.38, 0, w * 0.7, h, 1.2, 1);
+            drawTexture(ctx, w * 0.05, h * 0.58, w * 0.48, h * 0.36, 0.7, 0.52);
+
+            ctx.strokeStyle = "rgba(17,17,17,0.12)";
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 52) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = 0; y < h; y += 52) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+        }
+
+        function drawGenerator() {
+            const { ctx, w, h } = setupCanvas(document.getElementById("generator-canvas"));
+            ctx.fillStyle = colors.white;
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = "#eee6da";
+            ctx.fillRect(0, 0, w * 0.36, h);
+            ctx.strokeStyle = colors.line;
+            ctx.lineWidth = 1;
+            drawSmallLabel(ctx, "PARAMETER PANEL", 18, 12);
+
+            for (let i = 0; i < 6; i++) {
+                const yy = 30 + i * 26;
+                ctx.fillStyle = "rgba(255,253,248,0.72)";
+                roundRect(ctx, 18, yy, w * 0.25, 14, 7);
+                ctx.fill();
+                ctx.fillStyle = i % 2 ? colors.sage : colors.clay;
+                roundRect(ctx, 20, yy + 2, (w * 0.22) * (0.35 + i * 0.09), 10, 5);
+                ctx.fill();
+            }
+
+            const cx = w * 0.68;
+            const cy = h * 0.5;
+            const dressW = Math.min(w * 0.33, 130);
+            const dressH = Math.min(h * 0.72, 220);
+            ctx.save();
+            drawDressPath(ctx, cx, cy, dressW, dressH);
+            ctx.clip();
+            drawTexture(ctx, cx - dressW * 0.6, cy - dressH * 0.48, dressW * 1.2, dressH, 0.9, 1);
+            ctx.restore();
+            drawDressPath(ctx, cx, cy, dressW, dressH);
+            ctx.strokeStyle = colors.outline;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            drawSmallLabel(ctx, "LIVE GARMENT TEXTURE", cx, cy + dressH * 0.56, "center");
+        }
+
+        function drawLogic() {
+            const { ctx, w, h } = setupCanvas(document.getElementById("logic-canvas"));
+            ctx.fillStyle = colors.white;
+            ctx.fillRect(0, 0, w, h);
+            drawSmallLabel(ctx, "PARAMETER TO TEXTURE LOGIC", 18, 16);
+            const nodes = [
+                ["PARAMS", w * 0.18, h * 0.25],
+                ["drawDye", w * 0.5, h * 0.25],
+                ["LAYERS", w * 0.5, h * 0.58],
+                ["EXPORT", w * 0.82, h * 0.58]
+            ];
+            ctx.strokeStyle = colors.outline;
+            ctx.fillStyle = colors.paper;
+            nodes.forEach(([label, x, y]) => {
+                ctx.fillStyle = label === "drawDye" ? "#dce8df" : colors.paper;
+                roundRect(ctx, x - 42, y - 20, 84, 40, 10);
+                ctx.fill();
+                ctx.strokeStyle = label === "drawDye" ? colors.sage : colors.line;
+                ctx.stroke();
+                ctx.fillStyle = colors.ink;
+                ctx.font = "700 11px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(label, x, y + 4);
+            });
+            drawArrow(ctx, nodes[0][1] + 42, nodes[0][2], nodes[1][1] - 42, nodes[1][2]);
+            drawArrow(ctx, nodes[1][1], nodes[1][2] + 20, nodes[2][1], nodes[2][2] - 20);
+            drawArrow(ctx, nodes[2][1] + 42, nodes[2][2], nodes[3][1] - 42, nodes[3][2]);
+            drawTexture(ctx, w * 0.12, h * 0.68, w * 0.76, h * 0.18, 1, 0.68);
+            drawSmallLabel(ctx, "dyeCanvas / seamless texture", w * 0.5, h * 0.9, "center");
+        }
+
+        function drawArrow(ctx, x1, y1, x2, y2) {
+            ctx.strokeStyle = colors.outline;
+            ctx.fillStyle = colors.outline;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            const a = Math.atan2(y2 - y1, x2 - x1);
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - Math.cos(a - 0.5) * 8, y2 - Math.sin(a - 0.5) * 8);
+            ctx.lineTo(x2 - Math.cos(a + 0.5) * 8, y2 - Math.sin(a + 0.5) * 8);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawEvaluation() {
+            const { ctx, w, h } = setupCanvas(document.getElementById("evaluation-canvas"));
+            ctx.fillStyle = colors.white;
+            ctx.fillRect(0, 0, w, h);
+            const pad = 18;
+            drawSmallLabel(ctx, "VARIATION MATRIX", pad, 14);
+            const cardW = (w - pad * 3) / 2;
+            const cardH = h * 0.26;
+            for (let i = 0; i < 4; i++) {
+                const col = i % 2;
+                const row = Math.floor(i / 2);
+                const x = pad + col * (cardW + pad);
+                const y = pad + 14 + row * (cardH + 16);
+                ctx.fillStyle = "rgba(255,253,248,0.72)";
+                roundRect(ctx, x, y, cardW, cardH, 12);
+                ctx.fill();
+                drawTexture(ctx, x + 6, y + 6, cardW - 12, cardH - 12, 0.55 + i * 0.18, i === 3 ? 1 : 0.48);
+                if (i === 3) {
+                    ctx.strokeStyle = colors.sage;
+                    ctx.lineWidth = 1.5;
+                    roundRect(ctx, x, y, cardW, cardH, 12);
+                    ctx.stroke();
+                }
+            }
+            const matrixY = h * 0.7;
+            ctx.fillStyle = colors.paper;
+            roundRect(ctx, pad, matrixY, w - pad * 2, h - matrixY - pad, 12);
+            ctx.fill();
+            const matrixInnerX = pad + 14;
+            const matrixInnerW = w - pad * 2 - 28;
+            const gap = Math.max(4, matrixInnerW * 0.025);
+            const cellW = (matrixInnerW - gap * 3) / 4;
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 4; c++) {
+                    const x = matrixInnerX + c * (cellW + gap);
+                    const y = matrixY + 15 + r * 14;
+                    ctx.fillStyle = c === 3 ? colors.sage : colors.line;
+                    ctx.fillRect(x, y, cellW * (c === 3 ? 0.92 : 0.72), 6);
+                }
+            }
+        }
+
+        function drawBoard() {
+            const { ctx, w, h } = setupCanvas(document.getElementById("board-canvas"));
+            ctx.fillStyle = colors.white;
+            ctx.fillRect(0, 0, w, h);
+            drawTexture(ctx, w * 0.08, h * 0.12, w * 0.5, h * 0.76, 1.15, 1);
+
+            ctx.strokeStyle = colors.outline;
+            ctx.lineWidth = 1.5;
+            roundRect(ctx, w * 0.08, h * 0.12, w * 0.5, h * 0.76, 16);
+            ctx.stroke();
+
+            const gx = w * 0.68;
+            const gy = h * 0.18;
+            const scoreAreaW = w - gx - w * 0.07;
+            ctx.font = "800 13px Arial";
+            ctx.fillStyle = colors.ink;
+            ctx.fillText("SELECTED DYE OUTPUT", gx, gy);
+            ctx.font = "12px Arial";
+            ctx.fillStyle = colors.muted;
+            ctx.fillText("Balanced Micro Shibori", gx, gy + 24);
+
+            const criteria = ["Structure", "Inside / Outside", "Dye Control", "Wearability", "Collection"];
+            criteria.forEach((label, i) => {
+                const y = gy + 70 + i * 42;
+                ctx.fillStyle = colors.muted;
+                ctx.fillText(label, gx, y);
+                const dotGap = Math.max(12, Math.min(18, scoreAreaW / 8));
+                const dotStart = gx + scoreAreaW - dotGap * 4;
+                for (let d = 0; d < 5; d++) {
+                    ctx.beginPath();
+                    ctx.arc(dotStart + d * dotGap, y - 4, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = d < (i === 2 ? 4 : 5) ? colors.sage : "transparent";
+                    ctx.fill();
+                    ctx.strokeStyle = colors.outline;
+                    ctx.stroke();
+                }
+            });
+
+            ctx.strokeStyle = colors.line;
+            ctx.beginPath();
+            ctx.moveTo(gx, h * 0.78);
+            ctx.lineTo(w * 0.94, h * 0.78);
+            ctx.stroke();
+            ctx.fillStyle = colors.ink;
+            ctx.font = "800 28px Arial";
+            ctx.fillText("24 / 25", gx, h * 0.86);
+        }
+
+        function drawAll() {
+            drawHero();
+            drawGenerator();
+            drawLogic();
+            drawEvaluation();
+            drawBoard();
+        }
+
+        window.addEventListener("resize", drawAll);
+        drawAll();
+    </script>
+</body>
+</html>
